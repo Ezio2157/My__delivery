@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_package = "grpc";
+
+service ControlDeVentas {
+  rpc registrarVenta(stream VentaGRPC) returns (BeneficioGRPC) {}
+  rpc ventas(stream RestauranteGRPC) returns (stream ProductoGRPC) {}
+}
+
+message VentaGRPC {
+	string idProducto = 1;
+	double precio = 2;
+	int32 cantidad = 3;
+}
+message BeneficioGRPC {
+	double total=1;
+}
+
+message RestauranteGRPC {
+	string idRestaurante=1;
+}
+
+message ProductoGRPC {
+	string idProducto=1;
+	int32 cantidad = 2;
+}
