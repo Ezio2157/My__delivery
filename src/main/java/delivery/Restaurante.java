@@ -4,8 +4,10 @@ import bank.*;
 import pcd.util.ColoresConsola;
 import pcd.util.Traza;
 
+import javax.naming.ldap.Control;
 import java.io.*;
 import java.net.*;
+import java.util.List;
 
 public class Restaurante {
 	private String nombre;					// nombre del restaurante
@@ -16,12 +18,13 @@ public class Restaurante {
 	static int serverPort;
 
 	
-	public Restaurante (Account _ac, String _nombre, int _numeroMoteros) {
+	public Restaurante (Account _ac, String _nombre, int _numeroMoteros, ControlMoteros cM) {
 		account = _ac;
 		nombre = _nombre;
 		cocina = new Cocina (this);
 		Traza.traza(ColoresConsola.CYAN_BOLD_BRIGHT, 1,"Creando restaurante: "+nombre);
-		controlMoteros = new ControlMoteros (this, Config.numeroMoteros);
+		//controlMoteros = new ControlMoteros (Config.numeroMoteros);
+		controlMoteros = cM;
 	}
 	
 	public String getNombre () {
@@ -72,9 +75,10 @@ public class Restaurante {
 		}
 	}
 	
-	public void tramitarPedido (Pedido _p) throws SocketException, UnknownHostException {
+	public void tramitarPedido (Pedido _p, List<Pedido> ListaPedidosRepartidos) throws SocketException, UnknownHostException {
 		// Tramitar un pedido es:
 		if(pagarPedido(_p).equals("OK")){
+			ListaPedidosRepartidos.add(_p);
 			account.deposit(_p.getPrecioPedido()); 	// añadir la cantidad abonada a la cuenta del banco
 			controlMoteros.moterosLibres();
 			cocina.cocinar(_p);						// mandar el pedido a cocina

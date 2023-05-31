@@ -19,6 +19,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.observables.ConnectableObservable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import pcd.util.Traza;
+import pcd.util.Ventana;
 
 import static java.lang.Thread.currentThread;
 import static java.lang.Thread.sleep;
@@ -33,17 +34,18 @@ public class MyDelivery {
 		Traza.setNivel(delivery.Config.modoTraza);
 		
 		// Creando los restaurantes
+		ControlMoteros controlMoteros = new ControlMoteros (Config.numeroMoteros);
 		CadenaRestaurantes cadenaRestaurantes = null;
 		cadenaRestaurantes = new CadenaRestaurantes(delivery.Config.numeroRestaurantes);
-		cadenaRestaurantes.crearRestaurantes();
+		cadenaRestaurantes.crearRestaurantes(controlMoteros);
 
 		// CARGAR PEDIDOS DE FICHERO
 		// Obtenemos una lista de pedidos
 		List<delivery.Pedido> lp;
 		lp = new LinkedList<>();
-		lp = delivery.Pedido.pedidosDesdeFichero ("C:/Users/symar/OneDrive/Desktop/pedidos7.bin"); // Pon aquí la ruta y nombre de tu fichero
+		lp = delivery.Pedido.pedidosDesdeFichero ("C:/Users/symar/OneDrive/Desktop/pedidosExamen.bin"); // Pon aquí la ruta y nombre de tu fichero
 
-		Observable<delivery.Pedido> obsPedidos = delivery.Pedido.pedidosDesdeFicheroObservable ("C:/Users/symar/OneDrive/Desktop/pedidos7.bin");
+		Observable<delivery.Pedido> obsPedidos = delivery.Pedido.pedidosDesdeFicheroObservable ("C:/Users/symar/OneDrive/Desktop/pedidosExamen.bin");
 
 
 		
@@ -54,6 +56,7 @@ public class MyDelivery {
 		// Los estamos lanzando secuencialmente
 		long initialTime = new Date().getTime();
 		LinkedList<delivery.Restaurante> listaRestaurantes = cadenaRestaurantes.getRestaurantes();
+		List<delivery.Pedido> ListaPedidosRepartidos = new LinkedList<>();
 
 
 		if(delivery.Config.lanzamientoThreads == 0){
@@ -61,7 +64,7 @@ public class MyDelivery {
 			ThreadPoolExecutor executor;
 			executor=(ThreadPoolExecutor) Executors.newFixedThreadPool(numCores);
 			for (delivery.Pedido p:lp) {
-				delivery.ProcesarPedido Pp = new delivery.ProcesarPedido(p, listaRestaurantes.get(p.getRestaurante()));
+				delivery.ProcesarPedido Pp = new delivery.ProcesarPedido(p, listaRestaurantes.get(p.getRestaurante()), ListaPedidosRepartidos);
 				executor.execute(Pp);
 			}
 
@@ -74,7 +77,7 @@ public class MyDelivery {
 			if(delivery.Config.lanzamientoThreads == 1){
 				lp.stream().parallel().forEach(p-> {
 					try {
-						listaRestaurantes.get(p.getRestaurante()).tramitarPedido(p);
+						listaRestaurantes.get(p.getRestaurante()).tramitarPedido(p, ListaPedidosRepartidos);
 					} catch (SocketException e) {
 						throw new RuntimeException(e);
 					} catch (UnknownHostException e) {
@@ -85,7 +88,7 @@ public class MyDelivery {
 			else{
 				obsPedidos.flatMap(ped -> Observable.just(ped))
 						  .subscribeOn(Schedulers.computation())
-						  .doOnNext(ped -> listaRestaurantes.get(ped.getRestaurante()).tramitarPedido(ped))
+						  .doOnNext(ped -> listaRestaurantes.get(ped.getRestaurante()).tramitarPedido(ped,ListaPedidosRepartidos))
 						  .subscribe();
 				sleep(3000);
 			}
@@ -156,6 +159,26 @@ public class MyDelivery {
 
 		
 		System.out.println ("\nAuditoria Cadena: "+ cadenaRestaurantes.getBank().audit(0, delivery.Config.numeroRestaurantes));
+
+
+		List<delivery.Pedido> ListaPedidosPollo = new ArrayList<>();
+		delivery.CheckPedidosPollo cpPollo = new delivery.CheckPedidosPollo(ListaPedidosRepartidos, ListaPedidosPollo);
+		ForkJoinPool poolPollo = new ForkJoinPool();
+		//Buscando los pedidos de más de 12€
+		poolPollo.execute(cpPollo);
+		poolPollo.shutdown();
+		try{
+			poolPollo.awaitTermination(5, TimeUnit.SECONDS);
+		}catch (Exception e){}
+		Ventana V = new Ventana("Pedidos Pollo", 40,60);
+		for (delivery.Pedido p: ListaPedidosPollo){
+			V.addText("Pedido: " + p.printConRetorno());
+			//System.out.println("Pedido: " + p.printConRetorno());
+		}
+
+
+
+
 		
 		System.out.println ("Tiempo total invertido en la tramitacion: "+(new Date().getTime() - initialTime));
 

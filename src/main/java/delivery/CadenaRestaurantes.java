@@ -16,11 +16,11 @@ public class CadenaRestaurantes   {
 		return b;
 	}
 	
-	public void crearRestaurantes () {
+	public void crearRestaurantes (ControlMoteros cM) {
 		for (int i=0;i<numRestaurantes;i++) {	
 			delivery.Restaurante r = new delivery.Restaurante(b.getAccount(i),			// su posición en el array de cuentas será su cuenta
-											""+i, 						// el nombre del Restaurante
-											delivery.Config.numeroMoteros);  	// número de moteros del restaurante. Por defecto todos los restaurantes con el mismo número de moteros
+											""+i, 										// el nombre del Restaurante
+											delivery.Config.numeroMoteros, cM);  			// número de moteros del restaurante. Por defecto todos los restaurantes con el mismo número de moteros
 											
 			lista.add(r);
 		}

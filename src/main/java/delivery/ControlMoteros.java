@@ -1,21 +1,28 @@
 package delivery;
 
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import pcd.util.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import static io.reactivex.rxjava3.core.Observable.just;
+import static java.lang.Thread.currentThread;
 
 public class ControlMoteros {
 	int numeroMoteros;
-	Restaurante r;
+	//Restaurante r;
 	ArrayList<Pedido> ListaPedidos = new ArrayList<>();
 
-	public ControlMoteros (Restaurante _r, int _numeroMoteros) {
+	public ControlMoteros ( int _numeroMoteros) {
 		TodosMoteros todosMoteros = new TodosMoteros();
-		r=_r;
+		//r=_r;
 		numeroMoteros = _numeroMoteros;
 		for(int i=0; i < numeroMoteros; i++){
-			Traza.traza(ColoresConsola.YELLOW,1,"Generando Motero " + r.getNombre()  + "." + i);
-			Thread m = new Thread(new Motero(r, this, 10+(300*i), i, todosMoteros));
+			Traza.traza(ColoresConsola.YELLOW,1,"Generando Motero " + i);
+			Thread m = new Thread(new Motero( this, 10+(300*i), i, todosMoteros));
 			//Fórmula para evitar colocar todas las ventanas en la misma posición
 			m.start();
 		}

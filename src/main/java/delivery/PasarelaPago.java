@@ -28,7 +28,7 @@ public class PasarelaPago implements Runnable{
             ObjectInputStream entrada = new ObjectInputStream(s.getInputStream());
             BufferedWriter salida = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
             delivery.DatosPagoPedido DatosPagoS = (delivery.DatosPagoPedido) entrada.readObject();
-            if (DatosPagoS.getImporte() < 12) {
+            if (DatosPagoS.getImporte() < 10) {
                 salida.write("KO");
                 mutex.acquire();
                 v.addText("KO " + DatosPagoS.getId());

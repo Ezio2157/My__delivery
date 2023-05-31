@@ -3,17 +3,17 @@ package delivery;
 import pcd.util.Ventana;
 
 public class Motero implements Runnable{
-    Restaurante r;
+    //Restaurante r;
     Ventana V;
     ControlMoteros controlMoteros;
     TodosMoteros todosMoteros;
     boolean fin = false;
 
-    public Motero(Restaurante _r, ControlMoteros _controlMoteros, int posicionVentana, int IdMotero, TodosMoteros _todosMoteros){
-        r = _r;
+    public Motero( ControlMoteros _controlMoteros, int posicionVentana, int IdMotero, TodosMoteros _todosMoteros){
+        //r = _r;
         controlMoteros = _controlMoteros;
         todosMoteros = _todosMoteros;
-        V = new Ventana ("Motero "+r.getNombre() + "." + IdMotero, posicionVentana,10);
+        V = new Ventana ("Motero_" + IdMotero, posicionVentana,10);
     }
 
     public void run(){

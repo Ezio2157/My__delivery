@@ -21,6 +21,7 @@ delivery\PasarelaPago.class
 grpc\ControlVentas$BeneficioGRPCOrBuilder.class
 grpc\ControlVentas$RestauranteGRPC.class
 grpc\ControlVentas$ProductoGRPCOrBuilder.class
+delivery\CheckPedidosPollo.class
 grpc\ControlVentas$VentaGRPC$1.class
 bank\Account.class
 delivery\Contenedor.class
